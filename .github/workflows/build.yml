@@ -12,38 +12,36 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+          python-version: '3.11'
+          architecture: 'x64'
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m venv .venv
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        uv venv
         source .venv/bin/activate
-        pip install -r requirements.txt
-
+        uv pip install -r requirements.txt
+        
     - name: Create Lambda package
       run: |
-        mkdir -p package
-        cp lambda_function.py package/
-        cp requirements.txt package/
-        cp -r src package/
-        cd package
-        zip -r ../function.zip .
-        cd ..
-        rm -rf package
-
-    - name: Verify zip file exists
-      run: |
-        ls -l function.zip
+        bash scripts/zip.sh
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: lambda-package
         path: function.zip
-        if-no-files-found: error  # This will make the workflow fail if the zip doesn't exist
