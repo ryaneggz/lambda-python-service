@@ -17,21 +17,33 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.9'
 
     - name: Install dependencies
       run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        uv venv
+        python -m pip install --upgrade pip
+        python -m venv .venv
         source .venv/bin/activate
-        uv pip install -r requirements.txt
-        
+        pip install -r requirements.txt
+
     - name: Create Lambda package
       run: |
-        bash scripts/zip.sh
+        mkdir -p package
+        cp lambda_function.py package/
+        cp requirements.txt package/
+        cp -r src package/
+        cd package
+        zip -r ../function.zip .
+        cd ..
+        rm -rf package
+
+    - name: Verify zip file exists
+      run: |
+        ls -l function.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: lambda-package
         path: function.zip
+        if-no-files-found: error  # This will make the workflow fail if the zip doesn't exist
