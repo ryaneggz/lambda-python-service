@@ -1,0 +1,37 @@
+name: Build Lambda Package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        uv venv
+        source .venv/bin/activate
+        uv pip install -r requirements.txt
+        
+    - name: Create Lambda package
+      run: |
+        bash scripts/zip.sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: lambda-package
+        path: function.zip

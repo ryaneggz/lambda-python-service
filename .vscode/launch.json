@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Lambda Function",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/lambda_function.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "AWS_REGION": "us-east-1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}
