@@ -5,7 +5,7 @@ from pprint import pprint
 def lambda_handler(event, context):
     # Example: Make an HTTP GET request to the GitHub API
     try:
-        response = requests.get('https://api.github.com')
+        response = requests.get('https://demo.promptengineers.ai/api/info')
         response.raise_for_status()  # Raise an error for bad status codes
         data = response.json()
     except requests.RequestException as e:
